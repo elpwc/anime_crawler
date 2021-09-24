@@ -13,7 +13,7 @@ class Anime:
 
     img_url = ''
 
-    year = -1
+    year = 1975
     season = -1  # 0,1,2,3
     housou_date = time.strptime("1975.01.01", "%Y.%m.%d")
 
@@ -23,7 +23,7 @@ class Anime:
     playpage = ''
     ani_type = ''  # anime ova movie
 
-    bgm_rank = -1
+    bgm_rank = '0'
 
     def __init__(self, name, year):
         self.name = name

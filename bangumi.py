@@ -165,7 +165,7 @@ def get_country(s):
     if ja.search(s):
         return 'ja'
     elif kr.search(s):
-        return 'kr'
+        return 'ko'
     elif en.search(s):
         return 'en'
     else:
