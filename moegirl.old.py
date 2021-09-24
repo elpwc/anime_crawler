@@ -48,7 +48,7 @@ def getafter2013season_(year, season):
                 if(len(spans) >= 2):
                     if(spans[1].text != '导航'):
                         if(spans[1].text != '参见'):
-                            ani = Anime(spans[1].text, year)
+                            ani = anime_class.Anime(spans[1].text, year)
                             ani.season = season
                             ani.country = "ja"
                             res.append(ani)
