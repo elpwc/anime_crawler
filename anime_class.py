@@ -5,7 +5,7 @@ class Anime:
     name = ''
     jp_name = ''
 
-    bangumi_id = ''
+    bangumi_id = '0'
     moe_no_page = False
     bgm_no_page = False
 
@@ -17,7 +17,7 @@ class Anime:
     season = -1  # 0,1,2,3
     housou_date = time.strptime("1975.01.01", "%Y.%m.%d")
 
-    episode = ''
+    episode = '0'
 
     officialpage = ''
     playpage = ''

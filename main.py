@@ -7,8 +7,8 @@ import db
 import time
 
 
-
 def main():
+    '''
     animes = []
     a=anime_class.Anime('test', '2012')
     a.housou_date = time.strptime("2012-3-9", "%Y-%m-%d")
@@ -17,14 +17,15 @@ def main():
     animes.append(a)
 
     db.write_all_animes(animes)
-
     '''
     animes = bangumi.getfrombangumi(1995)
     animes.sort(key=lambda x: int(x.bgm_rank))
     for ani in animes:
         ani.print_3()
-    '''
+    db.write_all_animes(animes)
 
+    #TODO:
+    #优化image_url在数据库中的长度
 
 if __name__ == "__main__":
     main()
