@@ -18,15 +18,18 @@ def access(sql, cs, cursor):
         # print(data)
     except:
         print('error in \r\n:' + sql)
+        fo = open("error.log","a")
+        fo.write("["+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +'] error in \n:' + sql +"\n\n")
+        fo.close()
         cs.rollback
     return data
 
 
 def write_anime(ani, cs, cursor):
-    sql = ('''
+    sql = (R"""
     INSERT INTO anime (name, country, type, housou_date, episode, moe_no_page, bgm_no_page, image_url, bangumi_id, bangumi_rank) 
-    VALUES ("''' +
-           ani.name+'", "' +
+    VALUES ('""" +
+           ani.name.replace('\'', '\'\'')+"', \"" +
            ani.country+'", "' +
            ani_type_to_dbtype(ani.ani_type)+'", ' +
            "STR_TO_DATE('" + time.strftime("%Y-%m-%d", ani.housou_date) + "', '%Y-%m-%d')"+', ' +
@@ -61,15 +64,15 @@ def write_anime(ani, cs, cursor):
             ko = ani.jp_name
 
         sql = (
-            '''
+            R'''
         INSERT INTO anime_name (anime_id, zh_cn, ja, en, ko) 
         VALUES (''' +
-            str(id[0])+', "' +
-            cn + '", "' +
-            ja + '", "' +
-            en + '", "' +
-            ko +
-            '");')
+            str(id[0])+", '" +
+            cn.replace('\'', '\'\'') + "', '" +
+            ja.replace('\'', '\'\'') + "', '" +
+            en.replace('\'', '\'\'') + "', '" +
+            ko.replace('\'', '\'\'') +
+            "');")
         access(sql, cs, cursor)
 
 
@@ -80,7 +83,7 @@ def write_all_animes(animes):
     for ani in animes:
         i += 1
         print(str(i)+" in "+str(len(animes))+": " +
-              str(ani.year)+" "+ani.name+"\r\n")
+              str(ani.year)+" "+ani.name)
         write_anime(ani, conn, cursor)
     cursor.close()
     conn.close()

@@ -6,15 +6,15 @@ import time
 import re
 
 
-def getfrombangumi(year, page=-1):
+def getfrombangumi(year, page=-1, moe_animes=None):
     res = []
     if(page > 0):
-        res += getfrombangumi_page_at(year, page)
+        res += getfrombangumi_page_at(year, page, moe_animes)
     else:
         crt_pg = 1
         while True:
             print(str(crt_pg)+"---------------------------------------------------")
-            page = getfrombangumi_page_at(year, crt_pg)
+            page = getfrombangumi_page_at(year, crt_pg, moe_animes)
             if(page == None):
                 break
             res += page
@@ -25,7 +25,7 @@ def getfrombangumi(year, page=-1):
     return res
 
 
-def getfrombangumi_page_at(year, page):
+def getfrombangumi_page_at(year, page, moe_animes=None):
     res = []
     url = "https://bgm.tv/anime/browser/airtime/"+str(year)+"?page="+str(page)
     headers1 = {
@@ -96,15 +96,13 @@ def getfrombangumi_page_at(year, page):
                             crt[0].replace(' ', '').replace('\n', ''))
                         if(anidate != None):
                             anime.housou_date = anidate
-                            anime.season = math.floor(
-                                anime.housou_date.tm_mon / 4.0)
+                            #anime.season = math.floor(anime.housou_date.tm_mon / 4.0)
                     else:
                         anidate = gettimedate(
                             crt[1].replace(' ', '').replace('\n', ''))
                         if(anidate != None):
                             anime.housou_date = anidate
-                            anime.season = math.floor(
-                                anime.housou_date.tm_mon / 4.0)
+                            #anime.season = math.floor(anime.housou_date.tm_mon / 4.0)
                         # 话数
                         if(crt[0].find('话') != -1):
                             anime.episode = crt[0].replace(
@@ -114,9 +112,26 @@ def getfrombangumi_page_at(year, page):
                             if(eps >= 5):
                                 anime.ani_type = 'anime'
                             else:
-                                anime.ani_type = 'ova'
+                                if(year<2000):
+                                    anime.ani_type = 'movie'
+                                else:
+                                    anime.ani_type = 'ova'
+                # 放送日期获取失败修正
                 if(anime.housou_date.tm_year == 1975):
                     anime.housou_date = time.strptime(str(year), "%Y")
+                # 参考moe数据修正
+                if(moe_animes != None and year >= 2000 and year <= 2021):
+                    index = index_(moe_animes[year-2000], anime.name)
+                    if(index != -1):
+                        anime.moe_no_page = moe_animes[year -
+                                                       2000][index].moe_no_page
+                        anime.ani_type = moe_animes[year-2000][index].ani_type
+                        anime.country = 'ja'
+                # 根据名称进行类型修正
+                if(anime.name.find('电影') != -1 or anime.name.find('剧场版') != -1 or anime.name.find('映画') != -1 or anime.name.lower().find('movie') != -1 or anime.name.lower().find('film') != -1):
+                    anime.ani_type = "movie"
+                if(anime.name.lower().find('ova') != -1 or anime.name.find('番外') != -1 or anime.name.find('小剧场') != -1):
+                    anime.ani_type = "ova"
                 res.append(anime)
     return res
 
@@ -183,3 +198,11 @@ def get_country(s):
         return 'en'
     else:
         return 'zh-cn'
+
+
+def index_(arr, item):
+    try:
+        index = arr.index(item)
+        return index
+    except:
+        return -1

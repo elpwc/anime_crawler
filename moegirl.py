@@ -42,14 +42,17 @@ def getfrom2000to2012(year):
             '''
             # 第2 3 4 5 6ova 7movie个(0 kara)
             for i in range(2, 8, 1):
+                #2004年的查论辩没有OVA和电影列表
+                if(year == 2004 and i >= 6):
+                    break
                 anis = trs[i].find_all('a')
                 if(len(anis) != 0):
                     for ani in anis:
                         anime = anime_class.Anime(ani.text, year)
                         anime.country = "ja"
                         # 标记页面不存在
-                        if(ani.attrs['title'].find('（页面不存在）') == -1):
-                            anime.moe_no_page = True
+                        if(ani.attrs['title'].find('（页面不存在）') != -1):
+                            anime.moe_no_page = False
                         if(i == 6):  # ova
                             anime.ani_type = 'ova'
                         elif(i == 7):  # movie

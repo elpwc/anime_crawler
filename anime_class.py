@@ -6,7 +6,7 @@ class Anime:
     jp_name = ''
 
     bangumi_id = '0'
-    moe_no_page = False
+    moe_no_page = True
     bgm_no_page = False
 
     country = ''
