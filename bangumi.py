@@ -6,24 +6,32 @@ import time
 import re
 
 
-def getfrombangumi(year):
+def getfrombangumi(year, page=-1):
     res = []
-    crt_pg = 1
-    while True:
-        print(str(crt_pg)+"---------------------------------------------------")
-        page = getfrombangumi_page_at(year, crt_pg)
-        if(page == None):
-            break
-        res += page
-        crt_pg += 1
+    if(page > 0):
+        res += getfrombangumi_page_at(year, page)
+    else:
+        crt_pg = 1
+        while True:
+            print(str(crt_pg)+"---------------------------------------------------")
+            page = getfrombangumi_page_at(year, crt_pg)
+            if(page == None):
+                break
+            res += page
+            crt_pg += 1
+
+            # 延时防BAN
+            time.sleep(1)
     return res
 
 
 def getfrombangumi_page_at(year, page):
     res = []
     url = "https://bgm.tv/anime/browser/airtime/"+str(year)+"?page="+str(page)
-    headers = {
+    headers1 = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36 Edg/87.0.664.47'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'}
     r = requests.get(url, headers=headers)
     r.encoding = 'utf-8'
 
@@ -63,7 +71,7 @@ def getfrombangumi_page_at(year, page):
                     if(src == '/img/no_icon_subject.png'):
                         anime.bgm_no_page = True
                     else:
-                        anime.img_url = src.replace('/s/', '/l/')
+                        anime.img_url = src.split("/s/")[1]
                 else:
                     anime.bgm_no_page = True
                 # print(li.attrs['id'])
@@ -71,8 +79,8 @@ def getfrombangumi_page_at(year, page):
                 anime.bangumi_id = li.attrs['id'].split('_')[1]
 
                 crt = li.div.p.text.split(' / ')
-                print(anime.name)
-                print(crt)
+                # print(anime.name)
+                # print(crt)
                 if(len(crt) == 1):
                     # 只有时间日期
                     anidate = gettimedate(
@@ -125,29 +133,34 @@ def is_datetime(s):
 
 
 def gettimedate(s):
-    if(s.find('(') != -1):
-        s = s.split('(')[0]
-    if(s.find('（') != -1):
-        s = s.split('（')[0]
-    if(s.find('年') != -1 and s.find('月') != -1 and s.find('日') != -1):
-        if(s.find('-') != -1):
-            s = s.split('-')[0]
-        if(s.find('—') != -1):
-            s = s.split('—')[0]
-        return time.strptime(s, "%Y年%m月%d日")
-    elif(len(s.split('-')) == 3):
-        return time.strptime(s, "%Y-%m-%d")
-    elif(len(s.split('/')) == 3):
-        return time.strptime(s, "%Y/%m/%d")
-    elif(s.find('年') != -1 and s.find('月') != -1 and s.find('号') != -1):
-        return time.strptime(s, "%Y年%m月%d号")
-    elif(s.find('年') != -1 and s.find('月') != -1):
-        if(s.split('月')[1] != ''):
-            return time.strptime(s, "%Y年%m月%d")
-        else:
-            return time.strptime(s, "%Y年%m月")
-    elif(s.find('日') != -1 and s.find('月') != -1):
-        return time.strptime(s, "%Y月%m月%d日")
+    try:
+        if(s.find('(') != -1):
+            s = s.split('(')[0]
+        if(s.find('（') != -1):
+            s = s.split('（')[0]
+        if(len(s.split('/')) == 2):
+            s = s.split('/')[0]
+        if(s.find('年') != -1 and s.find('月') != -1 and s.find('日') != -1):
+            if(s.find('-') != -1):
+                s = s.split('-')[0]
+            if(s.find('—') != -1):
+                s = s.split('—')[0]
+            return time.strptime(s, "%Y年%m月%d日")
+        elif(len(s.split('-')) == 3):
+            return time.strptime(s, "%Y-%m-%d")
+        elif(len(s.split('/')) == 3):
+            return time.strptime(s, "%Y/%m/%d")
+        elif(s.find('年') != -1 and s.find('月') != -1 and s.find('号') != -1):
+            return time.strptime(s, "%Y年%m月%d号")
+        elif(s.find('年') != -1 and s.find('月') != -1):
+            if(s.split('月')[1] != ''):
+                return time.strptime(s, "%Y年%m月%d")
+            else:
+                return time.strptime(s, "%Y年%m月")
+        elif(s.find('日') != -1 and s.find('月') != -1):
+            return time.strptime(s, "%Y月%m月%d日")
+    except:
+        return time.strptime("1975-1-1", "%Y-%m-%d")
 
 
 def tag_exist(tag, child, attrs=None):

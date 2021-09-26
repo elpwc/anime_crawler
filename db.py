@@ -22,7 +22,7 @@ def access(sql, cs, cursor):
     return data
 
 
-def write_anime(ani, cs):
+def write_anime(ani, cs, cursor):
     sql = ('''
     INSERT INTO anime (name, country, type, housou_date, episode, moe_no_page, bgm_no_page, image_url, bangumi_id, bangumi_rank) 
     VALUES ("''' +
@@ -38,10 +38,10 @@ def write_anime(ani, cs):
            ani.bgm_rank +
            ');')
     # print(sql)
-    access(sql, cs)
+    access(sql, cs, cursor)
 
     id = access("SELECT id FROM anime WHERE bangumi_id=" +
-                ani.bangumi_id + ";", cs)
+                ani.bangumi_id + ";", cs, cursor)
 
     if(id != None):
         # print(id)
@@ -70,7 +70,7 @@ def write_anime(ani, cs):
             en + '", "' +
             ko +
             '");')
-        access(sql,cs)
+        access(sql, cs, cursor)
 
 
 def write_all_animes(animes):
@@ -78,9 +78,10 @@ def write_all_animes(animes):
     cursor = conn.cursor()
     i = 0
     for ani in animes:
-        i+=1
-        print(str(i)+" in "+str(len(animes))+"\r\n")
-        write_anime(ani, conn)
+        i += 1
+        print(str(i)+" in "+str(len(animes))+": " +
+              str(ani.year)+" "+ani.name+"\r\n")
+        write_anime(ani, conn, cursor)
     cursor.close()
     conn.close()
 
