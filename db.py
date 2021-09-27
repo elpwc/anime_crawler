@@ -18,7 +18,7 @@ def access(sql, cs, cursor):
         # print(data)
     except:
         print('error in \r\n:' + sql)
-        fo = open("error.log","a")
+        fo = open("log/error.log","a")
         fo.write("["+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +'] error in \n:' + sql +"\n\n")
         fo.close()
         cs.rollback

@@ -1,5 +1,5 @@
 import moegirl
-import bangumi
+import bangumi_new
 import anime_class
 import winsound
 import win32com.client
@@ -18,7 +18,7 @@ def main():
 
     db.write_all_animes(animes)
     '''
-    fo = open("error.log","a")
+    fo = open("log/error.log","a")
     fo.write("["+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +'] start. \n\n')
     fo.close()
 
@@ -33,15 +33,15 @@ def main():
     print('萌百数据获取完成！')
     winsound.Beep(1000, 1000)
     speak.Speak('萌百数据获取完成!')
-    fo = open("error.log","a")
+    fo = open("log/error.log","a")
     fo.write("["+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +'] done with data from moegirlswiki. \n\n')
     fo.close()
 
     #正式获取bangumi数据
-    for y in range(1980, 2022):
+    for y in range(1980, 2021):
         print(str(y)+"=======================================")
-        animes = bangumi.getfrombangumi(y, -1, moe_animes)
-        animes.sort(key=lambda x: int(x.bgm_rank))
+        animes = bangumi_new.getfrombangumi(y, '', moe_animes)
+        #animes.sort(key=lambda x: int(x.bgm_rank))
         for ani in animes:
             ani.print_3()
         #写入DB
@@ -50,14 +50,14 @@ def main():
         print(str(y)+'年数据导入数据库完成！')
         winsound.Beep(1000, 1000)
         speak.Speak(str(y)+'年数据导入数据库完成!')
-        fo = open("error.log","a")
+        fo = open("log/error.log","a")
         fo.write("["+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +'] done with '+str(y)+' \n\n')
         fo.close()
         
     print('导入数据库全部完成！')
     winsound.Beep(1000, 1000)
     speak.Speak('导入数据库全部完成!')
-    fo = open("error.log","a")
+    fo = open("log/error.log","a")
     fo.write("["+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +'] complete. \n\n')
     fo.close()
 
