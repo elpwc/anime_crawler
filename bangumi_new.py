@@ -4,6 +4,7 @@ import anime_class
 import math
 import time
 import re
+import datetime
 
 
 def getfrombangumi(year, type_="", moe_animes=None):
@@ -73,6 +74,10 @@ def getfrombangumi_page_type_as(year, page, type_, moe_animes=None):
                     if(anime.name == anime.jp_name):
                         anime.country = 'zh-cn'
                 anime.ani_type = type_
+                if(type_ == 'tv' or type_ == 'ova' or type_ == 'web'):
+                    anime.len_ = 2
+                else:
+                    anime.len_ = 3
                 anime.country = get_country(anime.jp_name)
                 if(anime.country == 'zh-cn' and anime.name != anime.jp_name):
                     anime.country = 'ja'
@@ -113,11 +118,15 @@ def getfrombangumi_page_type_as(year, page, type_, moe_animes=None):
                             crt[0].replace(' ', '').replace('\n', ''))
                         if(anidate != None):
                             anime.housou_date = anidate
+                            anime.season = math.floor(
+                                anime.housou_date.tm_mon / 4.0)
                     else:
                         anidate = gettimedate(
                             crt[1].replace(' ', '').replace('\n', ''))
                         if(anidate != None):
                             anime.housou_date = anidate
+                            anime.season = math.floor(
+                                anime.housou_date.tm_mon / 4.0)
                         # 话数
                         if(crt[0].find('话') != -1):
                             anime.episode = crt[0].replace(
@@ -125,6 +134,7 @@ def getfrombangumi_page_type_as(year, page, type_, moe_animes=None):
                 # 放送日期获取失败修正
                 if(anime.housou_date.tm_year == 1975):
                     anime.housou_date = time.strptime(str(year), "%Y")
+                    anime.season = 4
                 # 参考moe数据修正
                 if(moe_animes != None and year >= 2000 and year <= 2021):
                     index = index_(moe_animes[year-2000], anime.name)
@@ -133,6 +143,9 @@ def getfrombangumi_page_type_as(year, page, type_, moe_animes=None):
                                                        2000][index].moe_no_page
                         anime.ani_type = moe_animes[year-2000][index].ani_type
                         anime.country = 'ja'
+                if(year == 2021):
+                    anime.housou_stat = get_housou_shuryou_jikan_and_return_stat(
+                        anime.housou_date, anime.episode)
                 res.append(anime)
     return res
 
@@ -202,8 +215,28 @@ def get_country(s):
 
 
 def index_(arr, item):
-    try:
-        index = arr.index(item)
-        return index
-    except:
+    i = 0
+    for a in arr:
+        if(a.name == item):
+            return i
+            break
+        i += 1
+    if(i == len(arr)):
         return -1
+
+
+def get_housou_shuryou_jikan_and_return_stat(housou_date, episode):
+    if(episode <= 55):
+        housoutime = datetime.datetime.utcfromtimestamp(
+            time.mktime(housou_date))
+        owaritime = housoutime + datetime.timedelta(days=episode*7)
+        current = datetime.datetime.today()
+        diff1 = current - housoutime
+        diff2 = current - owaritime
+        if(diff1.days <= 0):
+            return 2  # 未放送
+        else:
+            if(diff2.days <= 0):
+                return 1  # 放送中
+            else:
+                return 0  # 完结

@@ -25,6 +25,10 @@ class Anime:
 
     bgm_rank = '0'
 
+    len_ = '2'
+
+    housou_stat = 0
+
     def __init__(self, name, year):
         self.name = name
         self.year = year
